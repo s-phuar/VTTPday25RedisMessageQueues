@@ -26,7 +26,7 @@ public class MessagePoller {
                 //if not element is added withing 10 seconds, rightpop returns a null
                 String message = template.opsForList().rightPop("sales", Duration.ofSeconds(10));
                 if(message != null){
-                    System.out.println("Message received: " + message);
+                    System.out.println("Message received: " + message); //usually where data processing happens
                 }
             }
         };
@@ -36,6 +36,9 @@ public class MessagePoller {
         executor.submit(run);
 
     }
+
+
+    
 
 
 

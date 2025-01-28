@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.scheduling.annotation.EnableAsync;
 
 import VTTPday25.inclass.model.MessagePoller;
 
@@ -28,6 +29,7 @@ import VTTPday25.inclass.model.MessagePoller;
 		//PUBLISH [sales] [message]
 
 @SpringBootApplication
+@EnableAsync //so that @Async bean is honored
 public class InclassApplication implements CommandLineRunner{
 
 	@Autowired
