@@ -43,8 +43,12 @@ public class AppConfig {
     @Autowired
     private SalesSubscribe salesSubscribe;
 
-    @Bean("redis-message")
-    public RedisTemplate<String, String> createRedisMessageTemplate(){
+    //RedisMessageListenerContainer does not need to run indefinitely like MessagePoller in inclassApplication
+    //this listens passively and automatically triggers when something is published
+    //the message listener is event driven, it responds to event(message publication) and does not need to keep running
+
+    @Bean("redis-pubsub")
+    public RedisMessageListenerContainer redisMessageListenerContainer(){
         //1.
         //responsible for defining redis database connection settings like host/port/database etc.
         //sets the database index - redisDatabase has been hardcoded as 0 in application.properties
@@ -71,11 +75,41 @@ public class AppConfig {
         //4.
         //create listener container, this listens to Redis channels for incoming messages
         //salesSubscribe object handles the actual message processing
-        RedisMessageListenerContainer listenerContainer = new RedisMessageListenerContainer();
-        listenerContainer.setConnectionFactory(jedisFac);
-        listenerContainer.addMessageListener(salesSubscribe, ChannelTopic.of("sales"));
+        RedisMessageListenerContainer redisMessageListenerContainer = new RedisMessageListenerContainer();
+        redisMessageListenerContainer.setConnectionFactory(jedisFac);
+        redisMessageListenerContainer.addMessageListener(salesSubscribe, ChannelTopic.of("sales"));
+        return redisMessageListenerContainer;
 
-        //5.
+    }
+
+
+
+    @Bean("redis-message-list")
+    public RedisTemplate<String, String> createRedisMessageTemplate(){
+        //1.
+        //responsible for defining redis database connection settings like host/port/database etc.
+        //sets the database index - redisDatabase has been hardcoded as 0 in application.properties
+        RedisStandaloneConfiguration config = new RedisStandaloneConfiguration(redisHost, redisPort);
+        config.setDatabase(redisDatabase);
+        //set the username and password (authentication) if they are present
+        if(!redisUsername.trim().equals("")){
+            logger.info("Setting Redis username and password: ");
+            config.setUsername(redisUsername);
+            config.setPassword(redisPassword);
+        }
+
+        //2.
+        //responsible for defining client-specific configurations, and how Jedis behaves when connecting to Redis
+        //this one-liner uses default configuration
+        JedisClientConfiguration jedisClient = JedisClientConfiguration.builder().build();
+
+        //3.
+        //creates and manages connection to the Redis server
+        //create factory to connect to Redis, with the configuration provided earlier
+        JedisConnectionFactory jedisFac = new JedisConnectionFactory(config, jedisClient);
+        jedisFac.afterPropertiesSet();
+
+        //4.
         //create redis template, we will handle only string data
         RedisTemplate<String, String> redisTemplate = new RedisTemplate<>();
         redisTemplate.setConnectionFactory(jedisFac);

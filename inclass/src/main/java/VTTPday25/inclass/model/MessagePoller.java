@@ -10,9 +10,10 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
+//interacts only with appconfig and inclass application
 @Component
 public class MessagePoller {
-    @Autowired @Qualifier("redis-message")
+    @Autowired @Qualifier("redis-message-list")
     private RedisTemplate<String, String> template;
 
     //lets the start method asynchronously handle redis operations like right pop
@@ -25,7 +26,7 @@ public class MessagePoller {
                 //if not element is added withing 10 seconds, rightpop returns a null
                 String message = template.opsForList().rightPop("sales", Duration.ofSeconds(10));
                 if(message != null){
-                    System.out.println("Message received" + message);
+                    System.out.println("Message received: " + message);
                 }
             }
         };

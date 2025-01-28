@@ -4,15 +4,19 @@ import org.springframework.data.redis.connection.Message;
 import org.springframework.data.redis.connection.MessageListener;
 import org.springframework.stereotype.Component;
 
+
+//interacts only with appconfig
+//method only triggers when we publish (not list) to sales channel
+//spring has automatically scanned for beans, this @component bean is automatically added in appconfig's redis-pubsub through autowired
 @Component
 public class SalesSubscribe implements MessageListener {
     //onMessage method is called whenever a message is published to 'sales' Redis channel that salesSubscribe listener is subscribed to
     //method prints out and converts the message body from a byte array to a String
     @Override
     public void onMessage(Message message, byte[] pattern){
-        System.out.println("Message received: " + message.toString());
+        System.out.println("Message received by sales subscriber: " + message.toString());
         String txt = new String(message.getBody());
-        System.out.println("Message received: " + txt);
+        System.out.println("Message received by sales subscriber again...: " + txt);
     }
 
 
