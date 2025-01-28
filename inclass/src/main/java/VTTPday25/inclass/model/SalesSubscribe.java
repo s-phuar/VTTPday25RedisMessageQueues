@@ -7,7 +7,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
 
-//interacts only with appconfig
+//interacts only with appconfig, this is a listening method only
 //method only triggers when we publish (not list) to sales channel
 //spring has automatically scanned for beans, this @component bean is automatically added in appconfig's redis-pubsub through autowired
 @Component //can use @Service as well
@@ -26,6 +26,7 @@ public class SalesSubscribe implements MessageListener {
     }
 
     //How can we publish messages to the sales channel without directly using redis-cli in ubuntu?
+    //Should be in repository layer
         // @Autowired private RedisTemplate<String, String> template;
         //below is functionally the same as publish [channel] [message]
         // template.convertAndSend(Channel.of("sales").getTopic(), sales.toJson().toString());
